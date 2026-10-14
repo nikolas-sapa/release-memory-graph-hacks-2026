@@ -1,0 +1,8 @@
+{
+  "name": "g01-falkordb-client-spike",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "falkordb": "6.8.0"
+  }
+}

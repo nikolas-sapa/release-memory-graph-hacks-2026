@@ -1,0 +1,214 @@
+{
+  "actualTime": "2026-10-14T19:17:45.476Z",
+  "graphName": "g01_falkordb_spike",
+  "client": "falkordb@6.8.0",
+  "serverModuleVersion": 60000,
+  "serverArchitecture": "aarch64",
+  "serverRunId": "bc8ced6e4b080acb256c36783cf44aa67a3839cc",
+  "image": "falkordb/falkordb@sha256:92fbda814970a648b1fd80835bff221766bccd0f0ce958bc58a62976fea06620",
+  "volume": "graph-hacks-2026-g01-data",
+  "results": [
+    {
+      "name": "shape_stable_ids",
+      "passed": true,
+      "elapsedMs": 2,
+      "evidence": {
+        "stableIds": [
+          "g01-service",
+          "g01-edge",
+          "g01-doc"
+        ],
+        "rawNodeIds": [
+          0,
+          1
+        ],
+        "rawEdgeId": 0
+      }
+    },
+    {
+      "name": "parameter_literal",
+      "passed": true,
+      "elapsedMs": 1,
+      "evidence": {
+        "exactRoundtrip": true,
+        "injectedNodes": 0
+      }
+    },
+    {
+      "name": "read_timeout",
+      "passed": true,
+      "elapsedMs": 2001,
+      "evidence": {
+        "requestedTimeoutMs": 2000,
+        "elapsedMs": 2001
+      }
+    },
+    {
+      "name": "runtime_failure_rollback",
+      "passed": true,
+      "elapsedMs": 4,
+      "evidence": {
+        "partialNodes": 0,
+        "partialEdges": 0
+      }
+    },
+    {
+      "name": "accepted_commit_complete",
+      "passed": true,
+      "elapsedMs": 3,
+      "evidence": {
+        "id": "g01-decision-g01-request-1",
+        "counts": [
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "name": "receipt_first_retry",
+      "passed": true,
+      "elapsedMs": 5,
+      "evidence": {
+        "originalId": "g01-decision-g01-request-1",
+        "replacingId": "g01-decision-g01-request-2",
+        "additionalRetryWrites": 0
+      }
+    },
+    {
+      "name": "changed_intent_conflict",
+      "passed": true,
+      "elapsedMs": 1,
+      "evidence": {
+        "mutations": 0
+      }
+    },
+    {
+      "name": "stale_new_request",
+      "passed": true,
+      "elapsedMs": 2,
+      "evidence": {
+        "mutations": 0
+      }
+    },
+    {
+      "name": "connect_refused_safely_rejected",
+      "passed": true,
+      "elapsedMs": 170,
+      "evidence": {
+        "childExitCode": 0,
+        "observed": "ECONNREFUSED caught by connection factory await/catch"
+      }
+    },
+    {
+      "name": "worker_refusal_and_read_recovery",
+      "passed": true,
+      "elapsedMs": 150,
+      "evidence": {
+        "refused": {
+          "status": "unavailable",
+          "code": "ECONNREFUSED"
+        },
+        "recovered": {
+          "status": "available",
+          "nodes": 4
+        },
+        "parentAlive": true,
+        "graphWrites": 0
+      }
+    },
+    {
+      "name": "durable_restart_1",
+      "passed": true,
+      "elapsedMs": 350,
+      "evidence": {
+        "stableIds": [
+          "g01-service",
+          "g01-edge",
+          "g01-doc"
+        ],
+        "rawNodeIds": [
+          0,
+          1
+        ],
+        "rawEdgeId": 0,
+        "receiptIds": [
+          "g01-decision-g01-request-1",
+          "g01-decision-g01-request-2"
+        ],
+        "sameVolume": true
+      }
+    },
+    {
+      "name": "durable_restart_2",
+      "passed": true,
+      "elapsedMs": 229,
+      "evidence": {
+        "stableIds": [
+          "g01-service",
+          "g01-edge",
+          "g01-doc"
+        ],
+        "rawNodeIds": [
+          0,
+          1
+        ],
+        "rawEdgeId": 0,
+        "receiptIds": [
+          "g01-decision-g01-request-1",
+          "g01-decision-g01-request-2"
+        ],
+        "sameVolume": true
+      }
+    },
+    {
+      "name": "committed_lost_ack_retry",
+      "passed": true,
+      "elapsedMs": 5,
+      "evidence": {
+        "actualCommittedId": "g01-decision-g01-lost-ack",
+        "sameIdRetries": 2,
+        "additionalWrites": 0
+      }
+    },
+    {
+      "name": "interrupted_inflight_write",
+      "passed": true,
+      "elapsedMs": 431,
+      "evidence": {
+        "killAfterMs": 150,
+        "transportOutcome": {
+          "kind": "uncertain",
+          "error": "Socket closed unexpectedly"
+        },
+        "persistedBranch": "absent",
+        "partialNodes": 0,
+        "partialEdges": 0,
+        "samePersistentVolume": true
+      }
+    },
+    {
+      "name": "material_inventory_add_change_delete_zero_write",
+      "passed": true,
+      "elapsedMs": 16,
+      "evidence": {
+        "changedCases": [
+          "dependency addition",
+          "dependency property change",
+          "dependency deletion",
+          "owner addition"
+        ],
+        "rejectedNewWrites": 4,
+        "partialWrites": 0,
+        "documentRevisionUnchanged": true,
+        "matchingOldReceiptWrites": 0
+      }
+    }
+  ],
+  "priorFailure": "First immediate reconnect after docker restart crashed with unhandled SocketClosedUnexpectedlyError before FalkorDB.connect returned.",
+  "unproved": [
+    "application exclusive-writer access boundary, participant approval/nonce/restart expiry",
+    "full per-intent material inventory and full accepted-chain validation",
+    "network/queue wall-clock deadline, host/power-loss durability",
+    "worker containment of factory SocketClosedUnexpectedlyError, separate from safely caught ECONNREFUSED"
+  ]
+}
