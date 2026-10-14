@@ -136,6 +136,8 @@ test('every Q/L oracle row binds exact current fixture edges, endpoints, and pro
   const manifest = JSON.parse(manifestText) as Array<{ id: string; type: string; from: string; to: string; revision: string; anchor: string; source: string; validity: string }>;
   const expectedById = new Map(manifest.map((binding) => [binding.id, binding]));
   assert.equal(expectedById.size, manifest.length);
+  assert.equal(manifest.length, 121, 'frozen Q/L oracle has 121 unique current edge bindings');
+  assert.deepEqual(new Set(rows.flatMap((row) => row.edges)), new Set(expectedById.keys()), 'manifest and Q/L references match exactly');
   const fixtureById = new Map(fixture.edges.map((edge) => [edge.relationship_id, edge]));
   const records = new Map(fixture.records.map((record) => [record.semantic_id, record]));
   for (const row of rows) for (const id of row.edges) {

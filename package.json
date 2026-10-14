@@ -10,7 +10,7 @@
     "dev": "tsx watch src/main.ts",
     "build": "tsc --outDir dist",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/fixtures/baseline.test.ts"
+    "test": "tsx --test tests/fixtures/baseline.test.ts tests/graph/retrieval.test.ts tests/graph/lineage.test.ts tests/graph/connection-containment.test.ts tests/evidence/claims.test.ts"
   },
   "dependencies": {
     "falkordb": "6.8.0",

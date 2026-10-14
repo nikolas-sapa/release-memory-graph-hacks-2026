@@ -8,7 +8,7 @@ Each edge's provenance is the immutable document revision plus anchor listed bel
 
 | ID | Expected directed path IDs | Required result |
 |---|---|---|
-| Q01 | `edge:0008`, `edge:0307`, `edge:0308` | `service:011 → service:010`; `person:010 OWNS service:011`, `person:009 OWNS service:010`. |
+| Q01 | `edge:0008`, `edge:0307`, `edge:0308`, `edge:0349`, `edge:0729` | `service:011 → service:010`; `person:010 OWNS service:011`, `person:009 OWNS service:010`; P011 uses S011 and is owned by person:051. |
 | Q02 | `edge:0012`, `edge:0013`, `edge:0316`, `edge:0317`, `edge:0319` | Incoming path `service:024 → service:022 → service:021`; owners person:022, person:020, person:019 respectively. |
 | Q03 | `edge:0019`, `edge:0020`, `edge:0021`, `edge:0325`, `edge:0326`, `edge:0327`, `edge:0328` | `service:033 → service:032 → service:031 → service:030`; three-hop terminal set, owners person:031/030/029/028. |
 | Q04 | `edge:0001`, `edge:0002`, `edge:0003`, `edge:0004`, `edge:0005`, `edge:0006`, `edge:0007`, `edge:0299`, `edge:0300`, `edge:0301`, `edge:0302`, `edge:0303` | From service:001, retain routes service:005→service:002→service:001; service:005→service:003→service:001; service:005→service:003→service:002→service:001; service:004 reaches through service:003; service:006 is direct consumer. |
@@ -16,12 +16,12 @@ Each edge's provenance is the immutable document revision plus anchor listed bel
 | Q06 | `edge:0304`, `edge:0345`, `edge:0725` | P007 uses S007; service owner person:006, project owner person:047; no service consumer. |
 | Q07 | `edge:0305`, `edge:0346`, `edge:0726` | P008 uses S008; direct service owner person:007 and project owner person:048. |
 | Q08 | `edge:0306` | Direct owner person:008 for service:009 only. |
-| Q09 | `edge:0008`, `edge:0307`, `edge:0308`, `edge:0348`, `edge:0728` | Service:011 impacts service:010; target/consumer owners person:009/person:010; P010 uses S010. |
-| Q10 | `edge:0009`, `edge:0309`, `edge:0341`, `edge:0342`, `edge:0351`, `edge:0721`, `edge:0722`, `edge:0731` | Service:013 impacts service:012; P003, P004, and P013 each use S013 and have their own owner. |
+| Q09 | `edge:0008`, `edge:0307`, `edge:0308`, `edge:0348`, `edge:0349`, `edge:0728`, `edge:0729` | Service:011 impacts service:010; target/consumer owners person:009/person:010; P010 and P011 use S010/S011. |
+| Q10 | `edge:0009`, `edge:0309`, `edge:0341`, `edge:0342`, `edge:0350`, `edge:0351`, `edge:0721`, `edge:0722`, `edge:0730`, `edge:0731` | Service:013 impacts service:012; P003, P004, and P013 use S013; P012 uses S012; each has its own owner. |
 | Q11 | `edge:0310`, `edge:0311` | Exactly two direct owners of service:014: person:012 and person:013. |
-| Q12 | `edge:0010` | Service:016 impacts service:015; no OWNS edge into service:016, expected owner explicitly unknown. |
+| Q12 | `edge:0010`, `edge:0353`, `edge:0354`, `edge:0733`, `edge:0734` | Service:016 impacts service:015; P015/P016 use S015/S016 and are owned by persons 055/056; no OWNS edge into service:016. |
 | Q13 | `edge:0312` | Canonical ID service:017 resolves owner person:015; similar label service:018 is not substituted. |
-| Q14 | `edge:0011`, `edge:0313`, `edge:0314` | Service:019 impacts service:018; disconnected service:020 excluded. |
+| Q14 | `edge:0011`, `edge:0313`, `edge:0314`, `edge:0356`, `edge:0357`, `edge:0736`, `edge:0737` | Service:019 impacts service:018; P018/P019 use S018/S019 and are owned by persons 058/059; disconnected service:020 excluded. |
 | Q15 | `edge:0001`, `edge:0002`, `edge:0003`, `edge:0004`, `edge:0005`, `edge:0006`, `edge:0007`, `edge:0299`, `edge:0300`, `edge:0301`, `edge:0302`, `edge:0303`, `edge:0339`, `edge:0340`, `edge:0343`, `edge:0344`, `edge:0719`, `edge:0720`, `edge:0723`, `edge:0724` | P001/P002 share person:040; affected P005/P006 owners also returned. Preserve each project/use/impact path. |
 | Q16 | `edge:0012`, `edge:0316`, `edge:0317` | Prerequisites from service:022 follow outgoing `service:022 → service:021`; include both direct service owners. |
 | Q17 | `edge:0013`, `edge:0317`, `edge:0319` | Impact from service:022 follows incoming `service:024 → service:022`; distinct from Q16. |
@@ -1064,6 +1064,26 @@ Each binding is the authored baseline edge identity and provenance expected by Q
     "validity": "current"
   },
   {
+    "id": "edge:0349",
+    "type": "OWNS",
+    "from": "person:051",
+    "to": "project:011",
+    "revision": "document:129",
+    "anchor": "section-01/paragraph-06",
+    "source": "source:043",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0350",
+    "type": "OWNS",
+    "from": "person:052",
+    "to": "project:012",
+    "revision": "document:088",
+    "anchor": "section-02/paragraph-07",
+    "source": "source:030",
+    "validity": "current"
+  },
+  {
     "id": "edge:0351",
     "type": "OWNS",
     "from": "person:053",
@@ -1071,6 +1091,46 @@ Each binding is the authored baseline edge identity and provenance expected by Q
     "revision": "document:050",
     "anchor": "section-03/paragraph-01",
     "source": "source:017",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0353",
+    "type": "OWNS",
+    "from": "person:055",
+    "to": "project:015",
+    "revision": "document:209",
+    "anchor": "section-05/paragraph-03",
+    "source": "source:075",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0354",
+    "type": "OWNS",
+    "from": "person:056",
+    "to": "project:016",
+    "revision": "document:128",
+    "anchor": "section-06/paragraph-04",
+    "source": "source:043",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0356",
+    "type": "OWNS",
+    "from": "person:058",
+    "to": "project:018",
+    "revision": "document:011",
+    "anchor": "section-08/paragraph-06",
+    "source": "source:004",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0357",
+    "type": "OWNS",
+    "from": "person:059",
+    "to": "project:019",
+    "revision": "document:112",
+    "anchor": "section-09/paragraph-07",
+    "source": "source:038",
     "validity": "current"
   },
   {
@@ -1164,6 +1224,26 @@ Each binding is the authored baseline edge identity and provenance expected by Q
     "validity": "current"
   },
   {
+    "id": "edge:0729",
+    "type": "USES",
+    "from": "project:011",
+    "to": "service:011",
+    "revision": "document:132",
+    "anchor": "section-09/paragraph-01",
+    "source": "source:044",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0730",
+    "type": "USES",
+    "from": "project:012",
+    "to": "service:012",
+    "revision": "document:144",
+    "anchor": "section-10/paragraph-02",
+    "source": "source:048",
+    "validity": "current"
+  },
+  {
     "id": "edge:0731",
     "type": "USES",
     "from": "project:013",
@@ -1171,6 +1251,46 @@ Each binding is the authored baseline edge identity and provenance expected by Q
     "revision": "document:118",
     "anchor": "section-11/paragraph-03",
     "source": "source:040",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0733",
+    "type": "USES",
+    "from": "project:015",
+    "to": "service:015",
+    "revision": "document:030",
+    "anchor": "section-01/paragraph-05",
+    "source": "source:010",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0734",
+    "type": "USES",
+    "from": "project:016",
+    "to": "service:016",
+    "revision": "document:002",
+    "anchor": "section-02/paragraph-06",
+    "source": "source:001",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0736",
+    "type": "USES",
+    "from": "project:018",
+    "to": "service:018",
+    "revision": "document:157",
+    "anchor": "section-04/paragraph-01",
+    "source": "source:053",
+    "validity": "current"
+  },
+  {
+    "id": "edge:0737",
+    "type": "USES",
+    "from": "project:019",
+    "to": "service:019",
+    "revision": "document:134",
+    "anchor": "section-05/paragraph-02",
+    "source": "source:045",
     "validity": "current"
   }
 ]
