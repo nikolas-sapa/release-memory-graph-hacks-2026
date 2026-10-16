@@ -1,0 +1,17 @@
+services:
+  graph:
+    image: falkordb/falkordb@sha256:92fbda814970a648b1fd80835bff221766bccd0f0ce958bc58a62976fea06620
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - falkordb-data:/var/lib/falkordb/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  falkordb-data:
+    name: graph-hacks-2026-g01-data

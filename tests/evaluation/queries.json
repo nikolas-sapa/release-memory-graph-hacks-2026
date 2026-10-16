@@ -1,0 +1,167 @@
+{
+  "id": "t06-graphstore-inspect-v1",
+  "revision": 1,
+  "description": "Frozen performance-only inputs for GraphStore.inspect. No expected-answer or semantic score is implied.",
+  "queries": [
+    {
+      "id": "T06-01",
+      "targetId": "service:010",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "direct consumer"
+    },
+    {
+      "id": "T06-02",
+      "targetId": "service:021",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "two-hop dependency"
+    },
+    {
+      "id": "T06-03",
+      "targetId": "service:030",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "three-hop dependency"
+    },
+    {
+      "id": "T06-04",
+      "targetId": "service:001",
+      "intent": "current_rationale",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "current decision rationale"
+    },
+    {
+      "id": "T06-05",
+      "targetId": "service:007",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "direct project usage"
+    },
+    {
+      "id": "T06-06",
+      "targetId": "service:008",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "single service target"
+    },
+    {
+      "id": "T06-07",
+      "targetId": "service:009",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "owner and impact inventory"
+    },
+    {
+      "id": "T06-08",
+      "targetId": "service:002",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "bounded consumer impact"
+    },
+    {
+      "id": "T06-09",
+      "targetId": "service:014",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "jointly owned service"
+    },
+    {
+      "id": "T06-10",
+      "targetId": "service:002",
+      "intent": "owners",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "owner inventory"
+    },
+    {
+      "id": "T06-11",
+      "targetId": "service:017",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "stable-ID target"
+    },
+    {
+      "id": "T06-12",
+      "targetId": "service:018",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "similar display names"
+    },
+    {
+      "id": "T06-13",
+      "targetId": "service:019",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "disconnected branch exclusion"
+    },
+    {
+      "id": "T06-14",
+      "targetId": "service:022",
+      "intent": "prerequisites",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "outgoing prerequisites"
+    },
+    {
+      "id": "T06-15",
+      "targetId": "service:024",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "incoming impact"
+    },
+    {
+      "id": "T06-16",
+      "targetId": "service:025",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "valid dependency cycle"
+    },
+    {
+      "id": "T06-17",
+      "targetId": "service:003",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "short dependency path"
+    },
+    {
+      "id": "T06-18",
+      "targetId": "service:003",
+      "intent": "owners",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "owner lookup for second target"
+    },
+    {
+      "id": "T06-19",
+      "targetId": "service:004",
+      "intent": "impact",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "consumer impact with bounded lineage"
+    },
+    {
+      "id": "T06-20",
+      "targetId": "service:004",
+      "intent": "owners",
+      "depth": 6,
+      "pathCap": 100,
+      "scenario": "single target ownership"
+    }
+  ]
+}
