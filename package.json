@@ -9,8 +9,9 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc --outDir dist",
+    "start": "node dist/src/main.js",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/fixtures/baseline.test.ts tests/graph/retrieval.test.ts tests/graph/lineage.test.ts tests/graph/connection-containment.test.ts tests/evidence/claims.test.ts tests/agent/validation.test.ts tests/memory/review.test.ts tests/memory/durability.test.ts",
+    "test": "tsx --test tests/fixtures/baseline.test.ts tests/graph/retrieval.test.ts tests/graph/lineage.test.ts tests/graph/connection-containment.test.ts tests/evidence/claims.test.ts tests/agent/validation.test.ts tests/memory/review.test.ts tests/memory/durability.test.ts tests/http/boundary.test.ts tests/http/rendering.test.ts",
     "test:integration": "tsx --test tests/memory/graph-adapter.test.ts"
   },
   "dependencies": {

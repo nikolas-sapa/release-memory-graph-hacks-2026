@@ -212,6 +212,18 @@ export class GraphStore {
     }
   }
 
+  async entities(): Promise<Array<{ id: string; name: string }>> {
+    try {
+      const { records } = await this.readInventory();
+      return records.filter((record) => record.type === 'Service')
+        .map((record) => ({ id: record.semantic_id, name: record.name }))
+        .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+    } catch (error) {
+      if (error instanceof GraphStoreError) throw error;
+      throw new GraphStoreError('graph_unavailable', 'Service inventory is unavailable', { cause: error });
+    }
+  }
+
   async readSnapshot(subjectId: string, decisionKey: string): Promise<ReviewSnapshot> {
     try {
       const { records, edges } = await this.readInventory();

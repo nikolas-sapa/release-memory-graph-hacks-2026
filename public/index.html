@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="Inspect synthetic release evidence and review decision memory updates.">
+    <title>Release Memory</title>
+    <link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Release Memory home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Release Memory</span>
+        </a>
+        <div class="topbar-meta">
+          <span class="eyebrow">LOCAL GRAPH REVIEW</span>
+          <span id="connection-status" class="connection-status" role="status" aria-live="polite">Checking services</span>
+        </div>
+      </header>
+
+      <main class="workspace-grid">
+        <aside class="panel query-panel" aria-labelledby="query-heading">
+          <div class="panel-heading">
+            <span class="eyebrow">01 / INSPECT</span>
+            <h1 id="query-heading">Release impact</h1>
+            <p>Ask what depends on a service, who owns it, or how its rationale changed.</p>
+          </div>
+          <form id="question-form" class="stack">
+            <label for="service-select">Service</label>
+            <select id="service-select" name="targetId" required>
+              <option value="">Waiting for graph inventory</option>
+            </select>
+            <label for="question-input">Question</label>
+            <textarea id="question-input" name="question" rows="5" maxlength="500" required placeholder="Can this service be removed safely?"></textarea>
+            <div class="field-meta"><span>Evidence-based question</span><span id="question-count">0 / 500</span></div>
+            <button id="ask-button" class="button button-primary" type="submit" disabled>Inspect graph</button>
+          </form>
+          <div id="request-state" class="notice" role="status" aria-live="polite">Connect to the local graph to begin.</div>
+          <div class="scope-note">
+            <span class="eyebrow">SCOPE</span>
+            <p>Synthetic evidence only. A missing owner, stale source, conflict, or truncated path blocks an unqualified removal recommendation.</p>
+          </div>
+        </aside>
+
+        <section id="report-panel" class="panel report-panel" aria-labelledby="report-heading">
+          <div class="panel-heading report-heading">
+            <div>
+              <span class="eyebrow">02 / EVIDENCE</span>
+              <h2 id="report-heading">Evidence report</h2>
+            </div>
+            <span id="report-status" class="status-pill">No report</span>
+          </div>
+          <div id="report-empty" class="empty-state">
+            <span class="empty-rule" aria-hidden="true"></span>
+            <h3>Evidence appears here</h3>
+            <p>Choose a service and ask a question. The report keeps facts, paths, source anchors, and gaps visible.</p>
+          </div>
+          <div id="report-content" class="report-content" hidden>
+            <section class="report-section" aria-labelledby="report-summary-heading">
+              <div class="section-title-row">
+                <h3 id="report-summary-heading">Coverage</h3>
+                <span id="report-intent" class="mono-label"></span>
+              </div>
+              <div id="coverage-list" class="coverage-list"></div>
+              <p id="report-limit" class="limit-note"></p>
+            </section>
+            <section class="report-section" aria-labelledby="draft-heading">
+              <div class="section-title-row">
+                <h3 id="draft-heading">Draft findings</h3>
+                <span id="draft-state" class="mono-label"></span>
+              </div>
+              <div id="draft-facts" class="evidence-list"></div>
+              <div id="draft-actions" class="action-list"></div>
+            </section>
+            <section class="report-section" aria-labelledby="paths-heading">
+              <div class="section-title-row">
+                <h3 id="paths-heading">Evidence paths</h3>
+                <span id="path-count" class="mono-label"></span>
+              </div>
+              <div id="path-list" class="path-list"></div>
+            </section>
+            <section class="report-section" aria-labelledby="decisions-heading">
+              <div class="section-title-row">
+                <h3 id="decisions-heading">Decision history</h3>
+                <span class="mono-label">CURRENT / HISTORICAL</span>
+              </div>
+              <div id="decision-list" class="decision-list"></div>
+            </section>
+            <section class="report-section" aria-labelledby="sources-heading">
+              <div class="section-title-row">
+                <h3 id="sources-heading">Source evidence</h3>
+                <span id="source-count" class="mono-label"></span>
+              </div>
+              <div id="source-list" class="source-list"></div>
+              <pre id="source-detail" class="source-detail" hidden></pre>
+            </section>
+            <section class="report-section" aria-labelledby="gaps-heading">
+              <div class="section-title-row">
+                <h3 id="gaps-heading">Gaps and conflicts</h3>
+              </div>
+              <div id="gap-list" class="gap-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <aside class="panel review-panel" aria-labelledby="review-heading">
+          <div class="panel-heading">
+            <span class="eyebrow">03 / REVIEW</span>
+            <h2 id="review-heading">Decision memory</h2>
+            <p>Prepare a proposed decision from inspected sources. Nothing saves until you confirm the exact review.</p>
+          </div>
+          <form id="review-form" class="stack" hidden>
+            <label for="decision-key">Decision scope key</label>
+            <input id="decision-key" name="decisionKey" maxlength="128" value="release-review" required>
+            <p class="field-help">Reuse the same key to continue a decision history.</p>
+            <label for="review-text">Decision</label>
+            <textarea id="review-text" name="text" rows="3" maxlength="8192" required placeholder="State the reviewed decision."></textarea>
+            <label for="review-rationale">Rationale</label>
+            <textarea id="review-rationale" name="rationale" rows="4" maxlength="8192" required placeholder="Explain the evidence and remaining uncertainty."></textarea>
+            <label for="reviewer-id">Reviewer label</label>
+            <input id="reviewer-id" name="reviewerId" maxlength="128" value="local participant" required>
+            <fieldset class="citation-fieldset">
+              <legend>Source anchors</legend>
+              <div id="citation-options" class="citation-options"></div>
+            </fieldset>
+            <button id="prepare-review" class="button button-secondary" type="submit" disabled>Prepare review</button>
+          </form>
+          <section id="pending-review" class="pending-review" hidden aria-labelledby="pending-heading">
+            <span class="eyebrow">PENDING CONFIRMATION</span>
+            <h3 id="pending-heading">Review this exact intent</h3>
+            <div id="pending-summary" class="pending-summary"></div>
+            <label class="confirm-check">
+              <input id="participant-confirmed" type="checkbox">
+              <span>I reviewed this decision, rationale, and cited evidence.</span>
+            </label>
+            <button id="confirm-review" class="button button-primary" type="button" disabled>Confirm and save</button>
+            <button id="cancel-review" class="button button-quiet" type="button">Cancel pending review</button>
+          </section>
+          <div id="review-state" class="notice" role="status" aria-live="polite">Run an inspection to prepare a review.</div>
+          <section id="saved-review" class="saved-review" hidden aria-live="polite"></section>
+          <section id="reconciliation" class="reconciliation" hidden aria-live="polite">
+            <span class="eyebrow">READ-ONLY RECONCILIATION</span>
+            <p id="reconciliation-state"></p>
+          </section>
+        </aside>
+      </main>
+      <footer class="footer"><span>Synthetic graph evidence</span><span>127.0.0.1 · no automatic business changes</span></footer>
+    </div>
+  </body>
+</html>
