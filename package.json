@@ -13,8 +13,8 @@
     "seed": "tsx scripts/seed.ts",
     "evaluate:performance": "tsx tests/evaluation/performance.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/fixtures/baseline.test.ts tests/graph/retrieval.test.ts tests/graph/lineage.test.ts tests/graph/connection-containment.test.ts tests/evidence/claims.test.ts tests/agent/validation.test.ts tests/memory/review.test.ts tests/memory/durability.test.ts tests/http/boundary.test.ts tests/http/rendering.test.ts",
-    "test:integration": "tsx --test tests/memory/graph-adapter.test.ts"
+    "test": "tsx --test tests/fixtures/baseline.test.ts tests/evaluation/adversarial-catalog.test.ts tests/graph/retrieval.test.ts tests/graph/lineage.test.ts tests/graph/connection-containment.test.ts tests/evidence/claims.test.ts tests/agent/validation.test.ts tests/memory/review.test.ts tests/memory/durability.test.ts tests/http/boundary.test.ts tests/http/rendering.test.ts",
+    "test:integration": "tsx --test tests/memory/graph-adapter.test.ts tests/evaluation/adversarial-integration.test.ts"
   },
   "dependencies": {
     "falkordb": "6.8.0",

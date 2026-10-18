@@ -30,12 +30,16 @@ class FakeGraph implements HttpGraphPort {
   receiptReads = 0;
   modelCalls = 0;
   unavailable = false;
+  snapshotUnavailable = false;
+  outageAfterEntityRead = false;
   receipt: PersistedReceipt | null = null;
 
   async entities(): Promise<Array<{ id: string; name: string }>> {
     this.entityReads++;
     if (this.unavailable) throw new GraphStoreError('graph_unavailable', 'offline');
-    return [{ id: 'service:1', name: 'Service One' }];
+    const entities = [{ id: 'service:1', name: 'Service One' }];
+    if (this.outageAfterEntityRead && this.entityReads > 1) this.unavailable = true;
+    return entities;
   }
 
   async inspect(targetId: string, intent: IntentKey): Promise<EvidenceReport> {
@@ -46,6 +50,7 @@ class FakeGraph implements HttpGraphPort {
 
   async source(requestId: string, revisionId: string, anchor: string): Promise<EvidenceSource> {
     this.sourceReads++;
+    if (this.unavailable) throw new GraphStoreError('graph_unavailable', 'offline');
     if (requestId !== 'request:1' || revisionId !== source.revisionId || anchor !== source.anchor) {
       throw new GraphStoreError('integrity_failure', 'Source reference is outside the retrieval package');
     }
@@ -60,7 +65,7 @@ class FakeGraph implements HttpGraphPort {
 
   async readSnapshot(subjectId: string, decisionKey: string): Promise<ReviewSnapshot> {
     this.snapshotReads++;
-    if (this.unavailable) throw new Error('offline');
+    if (this.unavailable || this.snapshotUnavailable) throw new GraphStoreError('graph_unavailable', 'offline');
     return {
       subjectId,
       decisionKey,
@@ -111,11 +116,11 @@ function reportFor(targetId: string, intent: IntentKey): EvidenceReport {
   };
 }
 
-function providerFor(graph: FakeGraph): ResponsesProvider {
+function providerFor(graph: FakeGraph, intent: IntentKey = 'owners'): ResponsesProvider {
   return {
     async create(): Promise<Response> {
       graph.modelCalls++;
-      const output_text = graph.modelCalls === 1 ? '{"intent":"owners"}' : '{"factIds":[],"actions":[]}';
+      const output_text = graph.modelCalls === 1 ? JSON.stringify({ intent }) : '{"factIds":[],"actions":[]}';
       return { status: 'completed', output_text, incomplete_details: null } as Response;
     },
   };
@@ -146,9 +151,9 @@ function send(port: number, path: string, options: {
   });
 }
 
-async function withServer(run: (port: number, graph: FakeGraph, nonce: string) => Promise<void>): Promise<void> {
+async function withServer(run: (port: number, graph: FakeGraph, nonce: string) => Promise<void>, intent: IntentKey = 'owners'): Promise<void> {
   const graph = new FakeGraph();
-  const server = createLocalHttpServer({ graph, reviews: new ReviewManager(graph), provider: providerFor(graph) });
+  const server = createLocalHttpServer({ graph, reviews: new ReviewManager(graph), provider: providerFor(graph, intent) });
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
   const address = server.address();
@@ -319,4 +324,79 @@ test('new process issues a new nonce and health reflects graph outage', async ()
     second.closeAllConnections();
     await new Promise<void>((resolve, reject) => second.close((error) => error ? reject(error) : resolve()));
   }
+});
+
+test('E12 graph outage rejects query instead of returning a fallback answer: 1/1', async () => {
+  await withServer(async (port, graph, nonce) => {
+    graph.unavailable = true;
+    const reply = await send(port, '/api/question', {
+      method: 'POST', headers: postHeaders(nonce), body: JSON.stringify({ targetId: 'service:1', question: 'What depends on this service?' }),
+    });
+    assert.equal(reply.status, 503);
+    assert.equal(JSON.parse(reply.body).error.code, 'graph_unavailable');
+    assert.equal(graph.modelCalls, 0);
+    assert.equal(graph.inspections, 0);
+    assert.equal(graph.writes, 0);
+    assert.doesNotMatch(reply.body, /"report"|"facts"|"decisions"/);
+  }, 'impact');
+});
+
+test('T05 graph outage workflows fail explicitly with zero writes: 5/5', async (t) => {
+  for (const scenario of [
+    { name: 'impact', intent: 'impact' as const, question: 'What depends on this service?' },
+    { name: 'owner', intent: 'owners' as const, question: 'Who owns this service?' },
+    { name: 'rationale history', intent: 'history' as const, question: 'Why did we make this decision?' },
+  ]) await t.test(`${scenario.name}: unavailable evidence returns no answer`, async () => {
+    await withServer(async (port, graph, nonce) => {
+      graph.outageAfterEntityRead = true;
+      const reply = await send(port, '/api/question', {
+        method: 'POST', headers: postHeaders(nonce),
+        body: JSON.stringify({ targetId: 'service:1', question: scenario.question }),
+      });
+      assert.equal(reply.status, 503);
+      assert.equal(JSON.parse(reply.body).error.code, 'graph_unavailable');
+      assert.equal(graph.inspections, 1);
+      assert.equal(graph.modelCalls, 1, 'intent selection may run; no answer-draft call after evidence outage');
+      assert.equal(graph.writes, 0);
+      assert.doesNotMatch(reply.body, /"report"|"facts"|"receipt"|"decisionId"/);
+    }, scenario.intent);
+  });
+
+  await t.test('reviewed decision confirmation: outage during fresh evidence read stays uncertain', async () => {
+    await withServer(async (port, graph, nonce) => {
+      const prepared = await send(port, '/api/reviews', {
+        method: 'POST', headers: postHeaders(nonce), body: JSON.stringify({
+          subjectId: 'service:1', decisionKey: 'release-review', text: 'Retain service for now.',
+          rationale: 'The cited evidence supports continued operation.', reviewerId: 'participant', citations: [citation],
+        }),
+      });
+      assert.equal(prepared.status, 201);
+      const intent = JSON.parse(prepared.body).review as { requestId: string; digest: string; confirmationNonce: string };
+      graph.snapshotUnavailable = true;
+      const confirm = await send(port, '/api/reviews/confirm', {
+        method: 'POST', headers: postHeaders(nonce), body: JSON.stringify({
+          requestId: intent.requestId, expectedDigest: intent.digest,
+          confirmationNonce: intent.confirmationNonce, participantConfirmed: true,
+        }),
+      });
+      assert.equal(confirm.status, 503);
+      assert.equal(JSON.parse(confirm.body).error.code, 'uncertain_write');
+      assert.equal(graph.receiptReads, 1, 'receipt was checked before the read failure');
+      assert.equal(graph.snapshotReads, 2, 'preparation succeeded; confirmation reread failed');
+      assert.equal(graph.writes, 0);
+      assert.doesNotMatch(confirm.body, /"decisionId"|"receipt"|"committed"/);
+    });
+  });
+
+  await t.test('source citation: unavailable lookup returns no excerpt', async () => {
+    await withServer(async (port, graph) => {
+      graph.unavailable = true;
+      const reply = await send(port, `/api/source?requestId=request%3A1&revisionId=${encodeURIComponent(citation.revisionId)}&anchor=${encodeURIComponent(citation.anchor)}`);
+      assert.equal(reply.status, 503);
+      assert.equal(JSON.parse(reply.body).error.code, 'graph_unavailable');
+      assert.equal(graph.sourceReads, 1);
+      assert.equal(graph.writes, 0);
+      assert.doesNotMatch(reply.body, /Synthetic evidence|excerpt|"sourceId"/);
+    });
+  });
 });

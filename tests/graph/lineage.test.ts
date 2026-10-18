@@ -50,7 +50,7 @@ test('lineage_10_prior_replacing_current: 10/10 real graph scopes, exact prior/h
   } finally { await store.close(); }
 });
 
-test('adversity_lineage_subset: 6/6 corrupt/incomplete inventories select zero current heads', () => {
+test('adversity_lineage_subset: 7/7 corrupt/incomplete inventories select zero current heads', () => {
   const base = { subjectId: 'service:001', decisionKey: 'scope-001', records: structuredClone(fixture.records), edges: structuredClone(fixture.edges) };
   const valid = validateLineage(base);
   assert.equal(valid.status, 'complete');
@@ -65,6 +65,11 @@ test('adversity_lineage_subset: 6/6 corrupt/incomplete inventories select zero c
   const template = fixture.edges.find((edge) => edge.relationship_id === 'edge:0041')!;
   check('E08 accepted cycle', (input) => input.edges.push({ ...template, relationship_id: 'overlay:cycle', source_id_endpoint: 'decision:001', target_id: 'decision:003' }));
   check('E09 two accepted successors', (input) => { input.edges.find((edge) => edge.relationship_id === 'edge:0044')!.target_id = 'decision:001'; });
+  check('E13 merged predecessors', (input) => {
+    input.records.find((record) => record.semantic_id === 'decision:003')!.expected_predecessor_id = null;
+    const currentLink = input.edges.find((edge) => edge.type === 'SUPERSEDES' && edge.source_id_endpoint === 'decision:003')!;
+    input.edges.push({ ...currentLink, relationship_id: 'overlay:merged-predecessor', target_id: 'decision:001' });
+  });
   const incomplete = validateLineage({ ...base, inventoryComplete: false });
   assert.equal(incomplete.status, 'incomplete'); assert.equal(incomplete.headId, null);
   check('E17 disconnected cycle beside valid head', (input) => {
@@ -83,6 +88,19 @@ test('adversity_lineage_subset: 6/6 corrupt/incomplete inventories select zero c
   check('E20 ABOUT subject mismatch', (input) => { input.edges.find((edge) => edge.type === 'ABOUT' && edge.source_id_endpoint === 'decision:003')!.target_id = 'service:002'; });
   const absent = validateLineage({ ...base, subjectId: 'service:280', decisionKey: 'absent' });
   assert.equal(absent.status, 'absent'); assert.equal(absent.headId, null);
+});
+
+test('E10 truncated lineage inventory is incomplete with no selected current head: 1/1', () => {
+  const truncated = {
+    subjectId: 'service:001', decisionKey: 'scope-001',
+    records: fixture.records.filter((record) => record.semantic_id !== 'decision:002'),
+    edges: fixture.edges.filter((edge) => !['edge:0041', 'edge:0044'].includes(edge.relationship_id)),
+    inventoryComplete: false,
+  };
+  const result = validateLineage(truncated);
+  assert.equal(result.status, 'incomplete');
+  assert.equal(result.headId, null);
+  assert.deepEqual(result.orderedIds, []);
 });
 
 test('stale accepted lineage links 2/2: ABOUT and SUPERSEDES select zero current heads', () => {

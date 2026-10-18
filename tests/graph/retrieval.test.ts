@@ -39,6 +39,35 @@ const expectedMissingOwners: Record<string, string[]> = {
   Q12: ['service:015', 'service:016'], Q15: ['service:001'],
 };
 
+test('E01 missing owner returns explicit gap and no positive owner fact: 1/1', () => {
+  const fixture = generateFixture();
+  const report = projectEvidence({ requestId: 'E01-missing-owner', targetId: 'service:016', intent: 'owners',
+    records: fixture.records, edges: fixture.edges });
+  assert.equal(report.status, 'incomplete');
+  assert.deepEqual(report.entities.owners, []);
+  assert.ok(report.gaps.some((gap) => gap.code === 'missing_owner' && gap.entityId === 'service:016'));
+  assert.equal(report.facts.filter((fact) => fact.predicate === 'OWNS').length, 0);
+});
+
+test('E04 missing current source revision preserves rationale history but marks evidence incomplete: 1/1', () => {
+  const fixture = generateFixture();
+  const records = structuredClone(fixture.records);
+  const edges = structuredClone(fixture.edges);
+  const currentDecision = records.find((record) => record.semantic_id === 'decision:003')!;
+  const currentCitation = edges.find((edge) => edge.type === 'CITES' && edge.source_id_endpoint === currentDecision.semantic_id)!;
+  const currentRevision = records.find((record) => record.semantic_id === currentCitation.target_id)!;
+  const historicalOnly = { ...currentRevision, semantic_id: 'document:e04-history', revision_identity: 'e04-historical-revision', applicability_state: 'historical' };
+  currentCitation.target_id = historicalOnly.semantic_id;
+  records.splice(records.findIndex((record) => record.semantic_id === currentRevision.semantic_id), 1, historicalOnly);
+  const report = projectEvidence({ requestId: 'E04-missing-current-revision', targetId: 'service:001', intent: 'current_rationale', records, edges });
+  const scope = report.decisions.find((item) => item.decisionKey === 'scope-001');
+  assert.equal(report.status, 'incomplete');
+  assert.equal(scope?.headId, currentDecision.semantic_id);
+  assert.equal(scope?.decisions.find((item) => item.id === currentDecision.semantic_id)?.state, 'current');
+  assert.ok(report.gaps.some((gap) => gap.code === 'missing_current_revision' && gap.entityId === currentRevision.source_id));
+  assert.equal(report.completeness.sourceCoverage, false);
+});
+
 test('dependency_20_paths_owners: 20/20 ledger cases, zero reversed or foreign facts (real FalkorDB)', async (t) => {
   const store = await GraphStore.connect({ url: 'redis://127.0.0.1:6379', graphName: 'release_memory', timeoutMs: 2000 });
   try {
@@ -150,6 +179,30 @@ test('frontier proof 1/1 and empty accepted inventory 2/2: explicit evidence wit
     assert.deepEqual(absent.decisions, []);
     assert.equal(absent.facts.filter((item) => ['ABOUT', 'CITES', 'SUPERSEDES'].includes(item.predicate)).length, 0);
   }
+});
+
+test('E14 direct target with no consumers returns target and current owner only: 1/1 (real FalkorDB)', async () => {
+  const store = await GraphStore.connect({ url: 'redis://127.0.0.1:6379', graphName: 'release_memory', timeoutMs: 2000 });
+  try {
+    const report = await store.inspect('service:023', 'impact');
+    assert.equal(report.status, 'complete');
+    assert.deepEqual(report.entities.services, ['service:023']);
+    assert.deepEqual(report.entities.owners, ['person:021']);
+    assert.deepEqual(report.entities.projects, []);
+    assert.deepEqual(report.gaps, []);
+  } finally { await store.close(); }
+});
+
+test('E26 relevant neighbor beyond depth bound stays explicit and cannot imply exhaustive impact: 1/1 (real FalkorDB)', async () => {
+  const store = await GraphStore.connect({ url: 'redis://127.0.0.1:6379', graphName: 'release_memory', timeoutMs: 2000 });
+  try {
+    const report = await store.inspect('service:034', 'impact', { depth: 6, pathCap: 100 });
+    assert.equal(report.status, 'incomplete');
+    assert.equal(report.completeness.traversal, false);
+    assert.deepEqual(report.limits.frontierIds, ['service:041']);
+    assert.ok(report.gaps.some((gap) => gap.code === 'unexpanded_frontier' && gap.entityId === 'service:041'));
+    assert.ok(!report.paths.some((path) => path.nodeIds.includes('service:041')));
+  } finally { await store.close(); }
 });
 
 test('adversity_retrieval_subset: terminal/frontier 2/2, provider direction 4/4, isolated target 1/1, source rejects 2/2', async () => {

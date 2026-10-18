@@ -50,11 +50,32 @@ function confirmed(intent: Awaited<ReturnType<ReviewManager['prepare']>>, overri
     participantConfirmed: true, ...overrides };
 }
 
-test('stale_review_zero_write 1/1: changed material rejects before atomic write', async () => {
+test('E19 material inventory changes without source revision, stale review rejects before write: 1/1', async () => {
   const store = new FakeStore(); const manager = new ReviewManager(store); const intent = await manager.prepare(baseDraft);
+  const unchangedCitations = structuredClone(store.current.validCitations);
   store.current = snapshot({ materialInventory: [['edge:010', 'OWNS', 'person:010', 'service:010'], ['edge:011', 'DEPENDS_ON', 'service:010', 'service:011']] });
+  assert.deepEqual(store.current.validCitations, unchangedCitations, 'source revision identity stays unchanged');
   await assert.rejects(manager.confirm(confirmed(intent)), (error: unknown) => error instanceof ReviewError && error.code === 'stale_review');
   assert.equal(store.writes, 0);
+});
+
+test('E15_stale_review_zero_write 1/1: advanced predecessor rejects unchanged material inventory', async () => {
+  const store = new FakeStore();
+  store.current = snapshot({ currentHeadId: 'decision:prior', lineageStatus: 'complete',
+    lineageInventory: [['edge:prior', 'SUPERSEDES', 'decision:prior', 'decision:older']] });
+  const manager = new ReviewManager(store);
+  const intent = await manager.prepare({ ...baseDraft, expectedPredecessorId: 'decision:prior' });
+
+  store.current = snapshot({ currentHeadId: 'decision:advanced', lineageStatus: 'complete',
+    materialInventory: structuredClone(intent.materialInventory) as string[][],
+    lineageInventory: [['edge:prior', 'SUPERSEDES', 'decision:prior', 'decision:older'],
+      ['edge:advanced', 'SUPERSEDES', 'decision:advanced', 'decision:prior']] });
+  await assert.rejects(manager.confirm(confirmed(intent)),
+    (error: unknown) => error instanceof ReviewError && error.code === 'stale_review');
+  assert.equal(store.current.materialInventory.length, intent.materialInventory.length);
+  assert.deepEqual(store.current.materialInventory, intent.materialInventory);
+  assert.equal(store.writes, 0);
+  assert.equal(store.receipts.size, 0);
 });
 
 test('committed_retry_receipt_before_stale_checks 1/1: matching receipt wins before changed graph checks', async () => {
@@ -74,12 +95,13 @@ test('retry_after_scope_advances_returns_historical_id 1/1: committed decision i
   assert.equal(store.writes, 1);
 });
 
-test('changed_intent_same_id_conflict 1/1: a durable request cannot be rebound', async () => {
+test('E18_changed_intent_same_id_conflict 1/1: changed digest cannot rebind durable request', async () => {
   const store = new FakeStore(); const manager = new ReviewManager(store); const intent = await manager.prepare(baseDraft);
   await manager.confirm(confirmed(intent));
   await assert.rejects(manager.confirm(confirmed(intent, { expectedDigest: 'f'.repeat(64) })),
     (error: unknown) => error instanceof ReviewError && error.code === 'intent_conflict');
   assert.equal(store.writes, 1);
+  assert.equal(store.receipts.size, 1);
 });
 
 test('stale nonce 1/1: old or incorrect confirmation nonce causes zero writes', async () => {

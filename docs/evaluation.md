@@ -1,6 +1,8 @@
 # Evaluation status
 
-Evidence recorded on 2026-10-16: T01, T02, T03, and T06 passed. T04, T05, and T07 remain not assessed; T08 and the complete E01–E26 acceptance matrix remain not assessed. Partial case-level tests do not count as the complete T08 evaluation.
+Latest acceptance run: 2026-10-18. Typecheck and build pass; automated suite passes 103/103, real-FalkorDB integration passes 3/3, and T05 real-database outage checks pass 5/5. The complete test logs, item ledger, frozen inputs, and environment are under [`20261018T110654Z-acceptance-v1`](../work/evaluation/runs/20261018T110654Z-acceptance-v1/).
+
+Formal status remains qualified. T01 and T02 machine comparisons passed 20/20 and 10/10, but their frozen oracle has no independent human reviewer recorded. T03 machine evidence checks passed 10/10, but required human entailment review is absent. T04 is blocked because the current Docker context exposes no verified persistent volume. T07 is not assessed because no participant answers were collected. T08 code assertions pass 26/26, but the target remains not assessed pending independent review of expected outcomes. The protected graph and its original volume were not mounted or modified.
 
 ## T06 performance procedure
 
@@ -20,35 +22,35 @@ npm exec -- tsx tests/evaluation/performance.ts
 
 The command connects only to the configured local FalkorDB endpoint. Outputs go under ignored `work/evaluation/runs/<run-id>/`. It exits nonzero unless the full T06 gate passes.
 
-The recorded run [`20261016T181010252Z-f6d899ab`](../work/evaluation/runs/20261016T181010252Z-f6d899ab/summary.json) passed: 20 queries, 100/100 measured attempts, nearest-rank p95 40.439 ms (<1,000 ms), zero errors/timeouts/incomplete reports, generated fixture matched, exact 1,000-node/3,000-edge counts before and after, and unchanged graph snapshot. This establishes the T06 performance gate only; it does not establish lineage topology or other acceptance criteria.
+The recorded run [`20261016T181010252Z-f6d899ab`](../work/evaluation/runs/20261016T181010252Z-f6d899ab/summary.json) passed: 20 queries, 100/100 measured attempts, nearest-rank p95 40.439 ms (<1,000 ms), zero errors/timeouts/incomplete reports, generated fixture matched, exact 1,000-node/3,000-edge counts before and after, and unchanged graph snapshot. A repeat on 2026-10-18, [`20261018T110355278Z-80d6f34e`](../work/evaluation/runs/20261018T110355278Z-80d6f34e/summary.json), returned all 100 complete samples and unchanged counts/snapshot, but failed the latency gate at p95 1,346.053 ms. It moved 1.28 GB from the disposable container over the Docker bridge. Network reachability and Compose configuration passed; the cause of the slower transfer path is not proven. Keep both runs; current performance status is failed pending a qualifying repeat.
 
 ## Acceptance ledger
 
-Passing code tests or counting graph records does not establish unrun acceptance criteria. T01–T03 below were checked against the frozen oracle using the named real-FalkorDB tests. T06 was checked by the measured run above. T04, T05, T07, T08, and the full case matrix remain open.
+Passing code tests or counting graph records does not establish unrun acceptance criteria. The 2026-10-18 item ledger distinguishes machine-checked outcomes from human and persistence requirements. The T08 frozen input manifest is [`manifest.json`](../work/evaluation/runs/20261018T110654Z-acceptance-v1/frozen/manifest.json); its independent human review field is explicitly “not recorded.”
 
 | Criterion | Denominator | Status |
 |---|---:|---|
-| T01 dependency and owner recall | 20 | Passed: 20/20, `tests/graph/retrieval.test.ts` (real FalkorDB) |
-| T02 superseded-decision handling | 10 | Passed: 10/10, `tests/graph/lineage.test.ts` (real FalkorDB) |
-| T03 claim-level evidence integrity | 10 | Passed: 10/10, `tests/evidence/claims.test.ts` (real FalkorDB) |
-| T04 persistence, restart, and interrupted-save reconciliation | 2 restart cycles + 1 interrupted-save workflow | Not assessed |
-| T05 database outage behavior | 5 workflows | Not assessed |
-| T06 bounded performance | 20 queries, 100 measured attempts | Passed: 100/100; p95 40.439 ms; see run evidence above |
-| T07 participant understanding | 4 explanations | Not assessed |
-| T08 adversarial catalog | 26 cases | Not assessed |
+| T01 dependency and owner recall | 20 | Not assessed: machine comparison 20/20; independent oracle review not recorded |
+| T02 superseded-decision handling | 10 | Not assessed: machine comparison 10/10; independent oracle review not recorded |
+| T03 claim-level evidence integrity | 10 | Not assessed: machine evidence checks 10/10; human entailment review not recorded |
+| T04 persistence, restart, and interrupted-save reconciliation | 2 restart cycles + 1 interrupted-save workflow | Blocked: verified persistent volume unavailable in current Docker context; see restart record |
+| T05 database outage behavior | 5 workflows | Passed: real disposable database stop/restart; 5/5 explicit failures, zero provider calls or decisions |
+| T06 bounded performance | 20 queries, 100 measured attempts | Failed on latest run: 100/100 complete; p95 1,346.053 ms; prior 40.439 ms pass retained as historical |
+| T07 participant understanding | 4 explanations | Not assessed: no participant record |
+| T08 adversarial catalog | 26 cases | Not assessed overall: 26/26 code assertions passed; independent oracle review not recorded |
 
 | Case | Status | Case | Status |
 |---|---|---|---|
-| E01 missing owner | Not assessed | E14 direct target with no consumers | Not assessed |
-| E02 contradictory ownership | Not assessed | E15 predecessor changes after review | Not assessed |
-| E03 stale ownership evidence | Not assessed | E16 lost acknowledgment and duplicate retry | Not assessed |
-| E04 missing current source revision | Not assessed | E17 disconnected cycle in scope | Not assessed |
-| E05 conflicting current revisions | Not assessed | E18 altered intent under same request ID | Not assessed |
-| E06 citation does not entail owner claim | Not assessed | E19 inventory changes without source revision change | Not assessed |
-| E07 valid dependency cycle | Not assessed | E20 cross-scope supersession or ABOUT mismatch | Not assessed |
-| E08 accepted decision cycle | Not assessed | E21 Cypher-like input text | Not assessed |
-| E09 multiple accepted successors | Not assessed | E22 duplicate immutable revision identity | Not assessed |
-| E10 truncated lineage inventory | Not assessed | E23 citation without immutable revision identity | Not assessed |
-| E11 path overflow | Not assessed | E24 dangling evidence reference | Not assessed |
-| E12 database timeout or outage | Not assessed | E25 empty graph | Not assessed |
-| E13 merged decision predecessors | Not assessed | E26 relevant neighbor beyond depth bound | Not assessed |
+| E01 missing owner | Code test passed | E14 direct target with no consumers | Code test passed |
+| E02 contradictory ownership | Code test passed | E15 predecessor changes after review | Code test passed |
+| E03 stale ownership evidence | Code test passed | E16 lost acknowledgment and duplicate retry | Code test passed |
+| E04 missing current source revision | Code test passed | E17 disconnected cycle in scope | Code test passed |
+| E05 conflicting current revisions | Code test passed | E18 altered intent under same request ID | Code test passed |
+| E06 citation does not entail owner claim | Code test passed | E19 inventory changes without source revision change | Code test passed |
+| E07 valid dependency cycle | Code test passed | E20 cross-scope supersession or ABOUT mismatch | Code test passed |
+| E08 accepted decision cycle | Code test passed | E21 Cypher-like input text | Code test passed |
+| E09 multiple accepted successors | Code test passed | E22 duplicate immutable revision identity | Code test passed |
+| E10 truncated lineage inventory | Code test passed | E23 citation without immutable revision identity | Code test passed |
+| E11 path overflow | Code test passed | E24 dangling evidence reference | Code test passed |
+| E12 database timeout or outage | Code test passed | E25 empty graph | Code test passed |
+| E13 merged decision predecessors | Code test passed | E26 relevant neighbor beyond depth bound | Code test passed |
