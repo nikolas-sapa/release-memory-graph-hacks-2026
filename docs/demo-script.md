@@ -1,6 +1,6 @@
 # Demo script (180 seconds)
 
-Recording prerequisite: use the local synthetic graph and verify a live provider call before recording. The current environment has no model credential, so it cannot produce a live generated answer. No video has been recorded.
+Recording note: this environment has no model credential. Use the deterministic loopback-only stub described in the README to demonstrate graph evidence and the review flow. Label the recording clearly: responses are scripted by the stub, so the video does not demonstrate model reasoning or provider quality. Use synthetic fixture data only. No video is included in the source repository; submit the recorded file separately.
 
 | Time | Demonstration |
 |---|---|

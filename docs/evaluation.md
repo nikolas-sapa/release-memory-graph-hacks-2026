@@ -1,6 +1,6 @@
 # Evaluation status
 
-Latest acceptance run: 2026-10-18. Typecheck and build pass; automated suite passes 103/103, real-FalkorDB integration passes 3/3, and T05 real-database outage checks pass 5/5. The complete test logs, item ledger, frozen inputs, and environment are under [`20261018T110654Z-acceptance-v1`](../work/evaluation/runs/20261018T110654Z-acceptance-v1/).
+Latest acceptance run: 2026-10-18. Typecheck and build pass; automated suite passes 103/103, real-FalkorDB integration passes 3/3, and T05 real-database outage checks pass 5/5. Detailed logs, frozen inputs, and environment records are in local ignored `work/evaluation/runs/` folders and are not included in this public repository. Results and limits below are the published summary.
 
 Formal status remains qualified. T01 and T02 machine comparisons passed 20/20 and 10/10, but their frozen oracle has no independent human reviewer recorded. T03 machine evidence checks passed 10/10, but required human entailment review is absent. T04 is blocked because the current Docker context exposes no verified persistent volume. T07 is not assessed because no participant answers were collected. T08 code assertions pass 26/26, but the target remains not assessed pending independent review of expected outcomes. The protected graph and its original volume were not mounted or modified.
 
@@ -22,11 +22,11 @@ npm exec -- tsx tests/evaluation/performance.ts
 
 The command connects only to the configured local FalkorDB endpoint. Outputs go under ignored `work/evaluation/runs/<run-id>/`. It exits nonzero unless the full T06 gate passes.
 
-The recorded run [`20261016T181010252Z-f6d899ab`](../work/evaluation/runs/20261016T181010252Z-f6d899ab/summary.json) passed with p95 40.439 ms. The 2026-10-18 run [`20261018T110355278Z-80d6f34e`](../work/evaluation/runs/20261018T110355278Z-80d6f34e/summary.json) returned 100 complete samples and unchanged counts/snapshot, but failed latency at p95 1,346.053 ms. Two controlled repeats on a fresh, unmounted graph then passed: [`20261018T155516834Z-dd87a8f5`](../work/evaluation/runs/20261018T155516834Z-dd87a8f5/summary.json) at p95 91.339 ms and [`20261018T155536088Z-ecb8afab`](../work/evaluation/runs/20261018T155536088Z-ecb8afab/summary.json) at p95 152.441 ms. Both had 100/100 complete attempts, zero errors/timeouts, matching 1,000-node/3,000-edge fixture counts, and unchanged graph snapshots. The Colima VM stayed at 2 CPUs/2 GiB; diagnostics recorded Redis graph-query time and container resource/network activity. The original slowdown's cause remains unproven. Latest T06 status: passed; retain the failed run as regression evidence.
+Run `20261016T181010252Z-f6d899ab` passed with p95 40.439 ms. Run `20261018T110355278Z-80d6f34e` returned 100 complete samples and unchanged counts/snapshot, but failed latency at p95 1,346.053 ms. Two controlled repeats on a fresh, unmounted graph then passed: `20261018T155516834Z-dd87a8f5` at p95 91.339 ms and `20261018T155536088Z-ecb8afab` at p95 152.441 ms. Both had 100/100 complete attempts, zero errors/timeouts, matching 1,000-node/3,000-edge fixture counts, and unchanged graph snapshots. The Colima VM stayed at 2 CPUs/2 GiB; diagnostics recorded Redis graph-query time and container resource/network activity. The original slowdown's cause remains unproven. Latest T06 status: passed; retain the failed run as regression evidence. Raw per-attempt records are not included in the public repository.
 
 ## Acceptance ledger
 
-Passing code tests or counting graph records does not establish unrun acceptance criteria. The 2026-10-18 item ledger distinguishes machine-checked outcomes from human and persistence requirements. The T08 frozen input manifest is [`manifest.json`](../work/evaluation/runs/20261018T110654Z-acceptance-v1/frozen/manifest.json); its independent human review field is explicitly “not recorded.”
+Passing code tests or counting graph records does not establish unrun acceptance criteria. The 2026-10-18 item ledger distinguishes machine-checked outcomes from human and persistence requirements. The local T08 frozen input manifest (`work/evaluation/runs/20261018T110654Z-acceptance-v1/frozen/manifest.json`) records independent human review as “not recorded”; that ignored file is not included in the public repository.
 
 | Criterion | Denominator | Status |
 |---|---:|---|

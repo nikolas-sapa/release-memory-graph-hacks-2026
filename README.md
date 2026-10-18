@@ -20,6 +20,10 @@ If a local FalkorDB service already runs on `127.0.0.1:6379`, skip `docker compo
 
 Without `OPENAI_API_KEY`, the UI stays read-only and makes no model call. To enable draft generation, provide the key to the local server process through its environment. The browser never receives it. No credential is included in this repository.
 
+### Deterministic local demo
+
+You can demonstrate the graph-backed evidence and review flow without sending data to an external model. In one terminal, run `node scripts/demo-provider.mjs`. In another, start the app with `OPENAI_API_KEY=demo-only OPENAI_BASE_URL=http://127.0.0.1:4318/v1 FALKORDB_GRAPH=release_memory_demo npm start`. Seed that graph first with `FALKORDB_GRAPH=release_memory_demo npm run seed`. The local stub selects the impact intent and up to five facts returned by FalkorDB; it does not demonstrate model reasoning or provider quality. Its server binds only to loopback and makes no outbound requests.
+
 Useful checks:
 
 ```sh
