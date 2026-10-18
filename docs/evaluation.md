@@ -22,7 +22,7 @@ npm exec -- tsx tests/evaluation/performance.ts
 
 The command connects only to the configured local FalkorDB endpoint. Outputs go under ignored `work/evaluation/runs/<run-id>/`. It exits nonzero unless the full T06 gate passes.
 
-The recorded run [`20261016T181010252Z-f6d899ab`](../work/evaluation/runs/20261016T181010252Z-f6d899ab/summary.json) passed: 20 queries, 100/100 measured attempts, nearest-rank p95 40.439 ms (<1,000 ms), zero errors/timeouts/incomplete reports, generated fixture matched, exact 1,000-node/3,000-edge counts before and after, and unchanged graph snapshot. A repeat on 2026-10-18, [`20261018T110355278Z-80d6f34e`](../work/evaluation/runs/20261018T110355278Z-80d6f34e/summary.json), returned all 100 complete samples and unchanged counts/snapshot, but failed the latency gate at p95 1,346.053 ms. It moved 1.28 GB from the disposable container over the Docker bridge. Network reachability and Compose configuration passed; the cause of the slower transfer path is not proven. Keep both runs; current performance status is failed pending a qualifying repeat.
+The recorded run [`20261016T181010252Z-f6d899ab`](../work/evaluation/runs/20261016T181010252Z-f6d899ab/summary.json) passed with p95 40.439 ms. The 2026-10-18 run [`20261018T110355278Z-80d6f34e`](../work/evaluation/runs/20261018T110355278Z-80d6f34e/summary.json) returned 100 complete samples and unchanged counts/snapshot, but failed latency at p95 1,346.053 ms. Two controlled repeats on a fresh, unmounted graph then passed: [`20261018T155516834Z-dd87a8f5`](../work/evaluation/runs/20261018T155516834Z-dd87a8f5/summary.json) at p95 91.339 ms and [`20261018T155536088Z-ecb8afab`](../work/evaluation/runs/20261018T155536088Z-ecb8afab/summary.json) at p95 152.441 ms. Both had 100/100 complete attempts, zero errors/timeouts, matching 1,000-node/3,000-edge fixture counts, and unchanged graph snapshots. The Colima VM stayed at 2 CPUs/2 GiB; diagnostics recorded Redis graph-query time and container resource/network activity. The original slowdown's cause remains unproven. Latest T06 status: passed; retain the failed run as regression evidence.
 
 ## Acceptance ledger
 
@@ -35,7 +35,7 @@ Passing code tests or counting graph records does not establish unrun acceptance
 | T03 claim-level evidence integrity | 10 | Not assessed: machine evidence checks 10/10; human entailment review not recorded |
 | T04 persistence, restart, and interrupted-save reconciliation | 2 restart cycles + 1 interrupted-save workflow | Blocked: verified persistent volume unavailable in current Docker context; see restart record |
 | T05 database outage behavior | 5 workflows | Passed: real disposable database stop/restart; 5/5 explicit failures, zero provider calls or decisions |
-| T06 bounded performance | 20 queries, 100 measured attempts | Failed on latest run: 100/100 complete; p95 1,346.053 ms; prior 40.439 ms pass retained as historical |
+| T06 bounded performance | 20 queries, 100 measured attempts | Passed on latest two controlled runs: p95 91.339 ms and 152.441 ms; earlier 1,346.053 ms failure retained |
 | T07 participant understanding | 4 explanations | Not assessed: no participant record |
 | T08 adversarial catalog | 26 cases | Not assessed overall: 26/26 code assertions passed; independent oracle review not recorded |
 
