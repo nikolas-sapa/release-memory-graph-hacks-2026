@@ -13,6 +13,7 @@ Release Memory is a local graph review tool for release decisions. It traces ser
 - Local TypeScript app and accessible evidence UI.
 - Synthetic graph fixture targeting 1,000 nodes and 3,000 edges.
 - Bounded graph retrieval, source lookup, explicit review and confirmation flow.
+- Deterministic loopback demo provider for a transparent, no-credential walkthrough.
 - Local HTTP boundary with same-origin checks, fresh nonce, streamed body cap, strict content policy and fixed static assets.
 - Unit, boundary, rendering and real FalkorDB integration tests.
 
@@ -22,6 +23,10 @@ Release Memory is a local graph review tool for release decisions. It traces ser
 - Full T01–T08 and E01–E26 acceptance report.
 - Two application/database restart cycles and interrupted-save reconciliation against the persistent volume.
 - Participant's four-query explanation assessment.
-- Recorded three-minute demo video.
+- Recorded YouTube demo video required by the event form.
 
-This file is a preparation draft. It is not a registration, public release or submitted entry.
+## Submission status
+
+Graph Hacks registration is confirmed. The public repository is https://github.com/nikolas-sapa/release-memory-graph-hacks-2026. The WeMakeDevs submission draft is filled except for the required YouTube video link. Do not treat the entry as submitted until the portal confirms it.
+
+The demo uses synthetic data and a deterministic local stub. It demonstrates the graph evidence and review flow, not external model quality or production deployment.
