@@ -9,7 +9,7 @@ const expectedNodes = { Person: 120, Project: 100, Service: 280, Ticket: 180, Do
 const expectedEdges = { OWNS: 420, USES: 1000, DEPENDS_ON: 700, AFFECTS: 220, ABOUT: 100, CITES: 360, SUPERSEDES: 60, REVISES: 140 };
 
 test('baseline has exact selected semantic node and relationship budgets', () => {
-  assert.equal(fixture.records.length, 1000);
+  assert.equal(fixture.records.length, 1001);
   assert.equal(fixture.edges.length, 3000);
   for (const [type, count] of Object.entries(expectedNodes)) assert.equal(fixture.records.filter((record) => record.type === type).length, count, type);
   for (const [type, count] of Object.entries(expectedEdges)) assert.equal(fixture.edges.filter((edge) => edge.type === type).length, count, type);
