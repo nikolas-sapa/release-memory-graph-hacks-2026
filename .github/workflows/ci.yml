@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      graph:
+        image: falkordb/falkordb@sha256:92fbda814970a648b1fd80835bff221766bccd0f0ce958bc58a62976fea06620
+        ports:
+          - 127.0.0.1:6379:6379
+        options: >-
+          --health-cmd "redis-cli PING"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run seed
+      - run: npm test
+      - run: npm run test:integration
